@@ -1,0 +1,18 @@
+number of input symbols 2
+input symbols a b 
+enter number of states 4
+initial state 1
+number of accepting state 1
+accepting states 2
+transition table:
+1 to a ->2
+1 to b ->3
+2 to a ->1
+2 to b ->4
+3 to a ->4
+3 to b ->1
+4 to a ->3
+4 to b ->2
+
+
+input string : abbabab
