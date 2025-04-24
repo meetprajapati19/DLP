@@ -3,32 +3,38 @@
 #include <cctype>
 #include <unordered_set>
 #include <vector>
-#include <regex>
 
 using namespace std;
 
+unordered_set<string> keywords = {"auto", "break", "case", "char", "const", "continue", "default", "do", "double", 
+                                   "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", 
+                                   "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", 
+                                   "union", "unsigned", "void", "volatile", "while"};
 
-unordered_set<string> keywords={"auto","break"	,"case","char","const","continue","default","do","double","else","enum","extern","float","for","goto","if","int","long","register","return","short","signed","sizeof","static","struct","switch",	"typedef"	,"union" , "unsigned","void","volatile","while"};
-
-unordered_set<char> operators = {'+', '-', '*', '/', '=', '%', '>', '<', '!'};
+unordered_set<char> operators = {'+', '-', '*', '/', '=', '%', '>', '<', '!', '&', '|', '^'};
 
 unordered_set<char> punctuation = {';', ',', '(', ')', '{', '}', '[', ']'};
-
 
 bool isKeyword(const string& word) {
     return keywords.find(word) != keywords.end();
 }
 
-
 bool isIdentifier(const string& word) {
-    return regex_match(word, regex("[a-zA-Z_][a-zA-Z0-9_]*"));
+    if (word.empty()) return false;
+    if (!isalpha(word[0]) && word[0] != '_') return false;
+    for (size_t i = 1; i < word.size(); ++i) {
+        if (!isalnum(word[i]) && word[i] != '_') return false;
+    }
+    return true;
 }
-
 
 bool isConstant(const string& word) {
-    return regex_match(word, regex("[0-9]+"));
+    if (word.empty()) return false;
+    for (char c : word) {
+        if (!isdigit(c)) return false;
+    }
+    return true;
 }
-
 
 void lexicalAnalyzer(const string& filename) {
     ifstream file(filename);
@@ -44,10 +50,10 @@ void lexicalAnalyzer(const string& filename) {
 
     cout << "TOKENS\n";
     while (file.get(ch)) {
-      
+
         if (isspace(ch)) continue;
 
-       //comments
+        
         if (ch == '/') {
             char nextChar;
             if (file.get(nextChar)) {
@@ -67,19 +73,19 @@ void lexicalAnalyzer(const string& filename) {
             }
         }
 
-        // punctuation
+        
         if (punctuation.find(ch) != punctuation.end()) {
             cout << "Punctuation: " << ch << endl;
             continue;
         }
 
-        //  operators
+       
         if (operators.find(ch) != operators.end()) {
             cout << "Operator: " << ch << endl;
             continue;
         }
 
-        // Identify identifiers, keywords, or constants
+        
         if (isalnum(ch) || ch == '_') {
             token = ch;
             while (file.get(ch) && (isalnum(ch) || ch == '_')) {
@@ -100,20 +106,19 @@ void lexicalAnalyzer(const string& filename) {
             continue;
         }
 
-        // Identify strings
+      
         if (ch == '\'') {
             token = "";
             while (file.get(ch) && ch != '\'') {
                 token += ch;
             }
-            cout << "String: '" << token << "'" << endl;
+            cout << "Character: '" << token << "'" << endl;
             continue;
         }
     }
-    
+
     file.close();
 
-    
     if (!errors.empty()) {
         cout << "\nLEXICAL ERRORS" << endl;
         for (const auto& err : errors) {
@@ -121,7 +126,6 @@ void lexicalAnalyzer(const string& filename) {
         }
     }
 
-  
     if (!symbolTable.empty()) {
         cout << "\nSYMBOL TABLE ENTRIES" << endl;
         int index = 1;
